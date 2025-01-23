@@ -22,5 +22,13 @@
   {
     "src": "/assets/photo6.avif",
     "title": "Photo 6"
+  },
+  {
+    "src": "/assets/photo7.jpg",
+    "title": "Photo 7"
+  },
+  {
+    "src": "/assets/photo8.avif",
+    "title": "Photo 8"
   }
 ]

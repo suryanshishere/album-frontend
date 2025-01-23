@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Box, IconButton, Paper, Slide } from "@mui/material";
+import { Box, IconButton, Paper, Slide, Typography } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
@@ -53,49 +53,50 @@ export default function Home() {
       }}
     >
       {IMAGES.map((image, index) => (
-          <Slide
-            key={image.src}
-            direction={direction}
-            in={index === currentIndex}
-            timeout={{ enter: 500, exit: 300 }}
-            mountOnEnter
-            unmountOnExit
-          >
-              <Paper
-                elevation={4}
-                sx={{
-                  position: "absolute",
-                  width: "100%",
-                  height: "100%",
-                  backgroundImage: `url(${image.src})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  transition: "opacity 0.5s ease",
-                }}
-              />
-           </Slide>
-        ))}
+        <Slide
+          key={image.src}
+          direction={direction}
+          in={index === currentIndex}
+          timeout={{ enter: 500, exit: 300 }}
+          mountOnEnter
+          unmountOnExit
+        >
+          <Paper
+            elevation={4}
+            sx={{
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+              backgroundImage: `url(${image.src})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              transition: "opacity 0.5s ease",
+            }}
+          />
+        </Slide>
+      ))}
 
       <Box
         sx={{
           position: "absolute",
           bottom: "1rem",
           display: "flex",
-          direction: "column",
           alignItems: "center",
           gap: 2,
-          width: "30rem",
           bgcolor: "white",
           padding: 0.5,
-          borderRadius: 4,
+          borderRadius: "25rem",
           boxShadow: 10,
+          width: { sm: "40rem", sx: "fit-content" },
+          height: "3rem",
         }}
       >
         <Box
           sx={{
-            display: "flex",
+            display: { sm: "flex", xs: "none" },
+            flexGrow: 1,
             width: "100%",
-            height: "4rem",
+            height: "100%",
             transition: "transform 0.6s ease-in-out",
           }}
         >
@@ -104,6 +105,7 @@ export default function Home() {
             return (
               <Box
                 key={index}
+                onClick={() => setCurrentIndex(index)}
                 sx={{
                   flex: isActive ? "3 1 60%" : "1 1 20%",
                   transition:
@@ -116,11 +118,17 @@ export default function Home() {
                   margin: "0 5px",
                   borderRadius: 4,
                   boxShadow: isActive ? "0 8px 16px rgba(0,0,0,0.2)" : "none",
+                  cursor: "pointer",
                 }}
               />
             );
           })}
         </Box>
+
+        <Typography sx={{ fontSize: "1rem", color: "text.primary" }}>
+          {currentIndex + 1}/{IMAGES.length}
+        </Typography>
+
         <Box sx={{ display: "flex", gap: 2 }}>
           <IconButton
             onClick={handlePrev}
