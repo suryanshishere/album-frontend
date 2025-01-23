@@ -1,0 +1,26 @@
+[
+  {
+    "src": "/assets/photo1.jpg",
+    "title": "Photo 1"
+  },
+  {
+    "src": "/assets/photo2.jpeg",
+    "title": "Photo 2"
+  },
+  {
+    "src": "/assets/photo3.jpeg",
+    "title": "Photo 3"
+  },
+  {
+    "src": "/assets/photo4.jpg",
+    "title": "Photo 4"
+  },
+  {
+    "src": "/assets/photo5.jpeg",
+    "title": "Photo 5"
+  },
+  {
+    "src": "/assets/photo6.avif",
+    "title": "Photo 6"
+  }
+]
