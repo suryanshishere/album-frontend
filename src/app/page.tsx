@@ -1,7 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Box, IconButton, Paper, Slide, Typography } from "@mui/material";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Box,
+  IconButton,
+  ImageList,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
@@ -11,146 +17,167 @@ import IMAGES from "./images.json";
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [direction, setDirection] = useState<"left" | "right">("left");
+
+  const touchStartRef = useRef(0);
+
+  const isMobile = useMediaQuery("(max-width:600px)");
+
+  const prev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex((curr) => curr - 1);
+    }
+  };
+
+  const next = () => {
+    if (currentIndex < IMAGES.length - 1) {
+      setCurrentIndex((curr) => curr + 1);
+    }
+  };
 
   useEffect(() => {
     if (isPlaying) {
       const interval = setInterval(() => {
-        handleNext();
+        if (currentIndex < IMAGES.length - 1) {
+          next();
+        } else {
+          setIsPlaying(false);
+        }
       }, 3000);
       return () => clearInterval(interval);
     }
-  }, [isPlaying]);
-
-  const handleNext = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % IMAGES.length);
-  };
-
-  const handlePrev = () => {
-    setDirection("right");
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? IMAGES.length - 1 : prevIndex - 1
-    );
-  };
+  }, [isPlaying, currentIndex]);
 
   const togglePlayPause = () => {
     setIsPlaying((prev) => !prev);
   };
 
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 2,
-        height: "100vh",
-        width: "100vw",
-        bgcolor: "background.default",
-        color: "text.primary",
-        overflow: "hidden",
-      }}
-    >
-      {IMAGES.map((image, index) => (
-        <Slide
-          key={image.src}
-          direction={direction}
-          in={index === currentIndex}
-          timeout={{ enter: 500, exit: 300 }}
-          mountOnEnter
-          unmountOnExit
-        >
-          <Paper
-            elevation={4}
-            sx={{
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-              backgroundImage: `url(${image.src})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              transition: "opacity 0.5s ease",
-            }}
-          />
-        </Slide>
-      ))}
+  const isLastImage = currentIndex === IMAGES.length - 1;
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const touchEnd = e.touches[0].clientX;
+    const diff = touchStartRef.current - touchEnd;
+    if (diff > 50) {
+      next();
+    } else if (diff < -50) {
+      prev();
+    }
+  };
+
+  const handleTouchEnd = () => {
+    touchStartRef.current = 0;
+  };
+
+  return (
+    <>
       <Box
-        sx={{
-          position: "absolute",
-          bottom: "1rem",
-          display: "flex",
-          alignItems: "center",
-          gap: 2,
-          bgcolor: "white",
-          padding: 0.5,
-          borderRadius: "25rem",
-          boxShadow: 10,
-          width: { sm: "40rem", sx: "fit-content" },
-          height: "3rem",
+        className="fixed w-screen h-screen opacity-15"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${IMAGES[currentIndex].src})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          position: "fixed",
+          width: "100%",
+          height: "100%",
+          backgroundBlendMode: "overlay",
         }}
-      >
+      ></Box>
+
+      <Box className="p-4 sm:p-8 grid h-screen grid-rows-[80vh_auto] gap-4">
         <Box
-          sx={{
-            display: { sm: "flex", xs: "none" },
-            flexGrow: 1,
-            width: "100%",
-            height: "100%",
-            transition: "transform 0.6s ease-in-out",
-          }}
+          className="h-full w-full flex items-center justify-center relative overflow-hidden rounded"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
-          {IMAGES.map((image, index) => {
-            const isActive = index === currentIndex;
-            return (
-              <Box
+          <div
+            className=" flex transition-transform ease-out duration-500"
+            style={{
+              transform: `translateX(-${currentIndex * 100}%)`,
+            }}
+          >
+            {IMAGES.map((image, index) => (
+              <img
                 key={index}
-                onClick={() => setCurrentIndex(index)}
-                sx={{
-                  flex: isActive ? "3 1 60%" : "1 1 20%",
-                  transition:
-                    "flex 0.6s ease-in-out, transform 0.6s ease-in-out",
-                  transform: isActive ? "scale(1.05)" : "scale(0.9)",
-                  backgroundImage: `url(${image.src})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  height: "100%",
-                  margin: "0 5px",
-                  borderRadius: 4,
-                  boxShadow: isActive ? "0 8px 16px rgba(0,0,0,0.2)" : "none",
-                  cursor: "pointer",
-                }}
+                src={image.src}
+                alt={image.title}
+                className="h-full shadow z-20 object-contain"
+                loading="lazy"
               />
-            );
-          })}
+            ))}
+          </div>
         </Box>
 
-        <Typography sx={{ fontSize: "1rem", color: "text.primary" }}>
-          {currentIndex + 1}/{IMAGES.length}
-        </Typography>
+        <Box className="w-full flex gap-2 items-center justify-center">
+          <Box className="h-full flex gap-2 items-center justify-center p-1">
+            <IconButton
+              onClick={prev}
+              color="default"
+              disabled={currentIndex === 0}
+              sx={{
+                opacity: currentIndex === 0 ? 0.5 : 1,
+              }}
+              size="large"
+            >
+              <ArrowBackIosNewIcon />
+            </IconButton>
 
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <IconButton
-            onClick={handlePrev}
-            color="default"
-            disabled={IMAGES.length === 1}
-            size="large"
-          >
-            <ArrowBackIosNewIcon />
-          </IconButton>
-          <IconButton onClick={togglePlayPause} color="default" size="large">
-            {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
-          </IconButton>
-          <IconButton
-            color="default"
-            onClick={handleNext}
-            disabled={IMAGES.length === 1}
-            size="large"
-          >
-            <ArrowForwardIosIcon />
-          </IconButton>
+            {!isMobile && (
+              <ImageList
+                cols={IMAGES.length}
+                className="overflow-hidden h-full flex-1 max-w-[70rem] flex items-center"
+              >
+                {IMAGES.map((image, index) => {
+                  const isActive = index === currentIndex;
+                  return (
+                    <img
+                      key={index}
+                      onClick={() => setCurrentIndex(index)}
+                      src={image.src}
+                      alt={image.title}
+                      className={`object-cover overflow-hidden  h-5/6 rounded-lg cursor-pointer transition-all duration-600 ease-in-out ${
+                        isActive
+                          ? "flex-[3_1_60%] scale-[1.05] shadow-lg"
+                          : "flex-[1_1_20%] scale-[0.9] shadow-none"
+                      }`}
+                    />
+                  );
+                })}
+              </ImageList>
+            )}
+            <IconButton
+              onClick={next}
+              color="default"
+              disabled={currentIndex === IMAGES.length - 1}
+              sx={{
+                opacity: currentIndex === IMAGES.length - 1 ? 0.5 : 1,
+              }}
+              size="large"
+            >
+              <ArrowForwardIosIcon />
+            </IconButton>
+            <Typography sx={{ fontSize: "1rem", color: "text.primary" }}>
+              {currentIndex + 1}/{IMAGES.length}
+            </Typography>
+          </Box>
+
+          <Box className="flex items-center justify-between w-full">
+            <Box className="ml-auto">
+              <IconButton
+                onClick={togglePlayPause}
+                color="default"
+                size="large"
+                disabled={isLastImage}
+              >
+                {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+              </IconButton>
+            </Box>
+          </Box>
         </Box>
       </Box>
-    </Box>
+    </>
   );
 }
