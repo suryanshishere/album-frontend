@@ -57,10 +57,9 @@ export default function Home() {
           modules={[Navigation, Autoplay]}
           spaceBetween={10}
           slidesPerView={1}
-          autoplay={{
-            delay: 3000,
-            disableOnInteraction: false,
-          }}
+          autoplay={
+            isPlaying ? { delay: 3000, disableOnInteraction: false } : false
+          }
           loop={true}
           onSlideChange={(swiper) => setCurrentIndex(swiper.realIndex)}
           onSwiper={(swiper) => (swiperRef.current = swiper)}
